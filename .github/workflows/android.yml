@@ -22,10 +22,10 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    # This replaces dead jcenter links with the older URL format that Gradle 3.3 recognizes
+    # Using a different separator (#) fixes the URL forward slash error completely
     - name: Bypass Dead JCenter Repositories
       run: |
-        find . -name "build.gradle" -exec sed -i "s/jcenter()/maven { url 'https:\/\/://google.com' }\n        mavenCentral()/g" {} +
+        find . -name "build.gradle" -exec sed -i "s#jcenter()#maven { url 'https://google.com' }\n        mavenCentral()#g" {} +
 
     - name: Grant Execute Permission for Gradlew
       run: chmod +x ./gradlew
