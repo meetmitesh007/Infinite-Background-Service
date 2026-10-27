@@ -20,24 +20,29 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
-        cache: 'gradle'
 
-    # This steps upgrades your project settings to versions that actually exist on Google's servers
-    - name: Force Upgrade Project Dependencies
+    # This completely replaces all old repository links with modern working ones across all files
+    # It also fixes a common modern Gradle network issue by forcing HTTP download stability
+    - name: Clean and Repair Legacy Repositories
       run: |
-        find . -name "build.gradle" -exec sed -i "s#jcenter()#maven { url 'https://google.com' }\n        mavenCentral()#g" {} +
-        find . -name "build.gradle" -exec sed -i "s#com.android.tools.build:gradle:2.3.3#com.android.tools.build:gradle:3.0.1#g" {} +
-        find . -name "gradle-wrapper.properties" -exec sed -i "s#gradle-3.3-all.zip#gradle-4.1-all.zip#g" {} +
+        find . -name "*.gradle" -exec sed -i 's/jcenter()/mavenCentral()\n        maven { url "https:\/\/://google.com" }/g' {} +
+        find . -name "*.gradle" -exec sed -i 's/mavenCentral()/mavenCentral()\n        maven { url "https:\/\/://google.com" }/g' {} +
+        echo "systemProp.org.gradle.internal.http.connectionTimeout=60000" >> gradle.properties
+        echo "systemProp.org.gradle.internal.http.socketTimeout=60000" >> gradle.properties
 
     - name: Grant Execute Permission for Gradlew
       run: chmod +x ./gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --no-daemon
 
+    # If it builds successfully, your APK will be available under the Actions tab here:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
-        
+        path: |
+          app/build/outputs/apk/debug/*.apk
+          app/build/outputs/apk/*.apk
+          build/outputs/apk/**/*.apk
+          
