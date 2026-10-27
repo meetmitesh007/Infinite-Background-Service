@@ -22,6 +22,12 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
+    # This step injects Google's repository link directly into your app files 
+    # to bypass the dead JCenter servers without you needing to edit code files manually.
+    - name: Bypass Dead JCenter Repositories
+      run: |
+        find . -name "build.gradle" -exec sed -i 's/jcenter()/google()\n        mavenCentral()/g' {} +
+
     - name: Grant Execute Permission for Gradlew
       run: chmod +x ./gradlew
 
