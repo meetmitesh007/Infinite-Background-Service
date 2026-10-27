@@ -21,12 +21,11 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
 
-    # This completely replaces all old repository links with modern working ones across all files
-    # It also fixes a common modern Gradle network issue by forcing HTTP download stability
+    # This completely cleans out dead repository links using safe text formatting (#)
     - name: Clean and Repair Legacy Repositories
       run: |
-        find . -name "*.gradle" -exec sed -i 's/jcenter()/mavenCentral()\n        maven { url "https:\/\/://google.com" }/g' {} +
-        find . -name "*.gradle" -exec sed -i 's/mavenCentral()/mavenCentral()\n        maven { url "https:\/\/://google.com" }/g' {} +
+        find . -name "*.gradle" -exec sed -i 's#jcenter()#mavenCentral()\n        maven { url "https://google.com" }#g' {} +
+        find . -name "*.gradle" -exec sed -i 's#mavenCentral()#mavenCentral()\n        maven { url "https://google.com" }#g' {} +
         echo "systemProp.org.gradle.internal.http.connectionTimeout=60000" >> gradle.properties
         echo "systemProp.org.gradle.internal.http.socketTimeout=60000" >> gradle.properties
 
@@ -36,7 +35,6 @@ jobs:
     - name: Build Debug APK
       run: ./gradlew assembleDebug --no-daemon
 
-    # If it builds successfully, your APK will be available under the Actions tab here:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
