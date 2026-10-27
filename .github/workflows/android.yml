@@ -1,0 +1,44 @@
+name: Android APK Build
+
+# Triggers the workflow on push or pull requests targeting the main branch
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  # Allows you to manually trigger this build from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Check out the repository code onto the runner
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Set up the Java Development Kit (JDK) 
+    # Change version to 17 or 21 if your project requires a newer JDK
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'gradle' # Automatically caches gradle dependencies to speed up future builds
+
+    # 3. Grant execute permission to the Gradle wrapper script
+    - name: Grant Execute Permission for Gradlew
+      run: chmod +x ./gradlew
+
+    # 4. Build the Debug APK
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
+
+    # 5. Upload the compiled APK so you can download it from GitHub
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        
