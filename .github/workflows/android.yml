@@ -22,10 +22,12 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    # Using a different separator (#) fixes the URL forward slash error completely
-    - name: Bypass Dead JCenter Repositories
+    # This steps upgrades your project settings to versions that actually exist on Google's servers
+    - name: Force Upgrade Project Dependencies
       run: |
         find . -name "build.gradle" -exec sed -i "s#jcenter()#maven { url 'https://google.com' }\n        mavenCentral()#g" {} +
+        find . -name "build.gradle" -exec sed -i "s#com.android.tools.build:gradle:2.3.3#com.android.tools.build:gradle:3.0.1#g" {} +
+        find . -name "gradle-wrapper.properties" -exec sed -i "s#gradle-3.3-all.zip#gradle-4.1-all.zip#g" {} +
 
     - name: Grant Execute Permission for Gradlew
       run: chmod +x ./gradlew
